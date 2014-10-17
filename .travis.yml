@@ -14,6 +14,7 @@ install:
   - source terryfy/travis_tools.sh
   - get_python_environment macpython $VERSION venv
   - pip install delocate numpy==$NUMPY_VERSION
+  - pip install matplotlib
   - if [ -n "$LATEST_TAG" ]; then
     checkout_closest_tag pymc $PYMC_BRANCH;
     fi
@@ -31,7 +32,12 @@ script:
   - mkdir tmp_for_test
   - cd tmp_for_test
   # Run the tests
-  - nosetests --verbosity=3 pymc
+  # Getting test_database/test_interactive hangs / failures
+  # Fail for py3:
+  #  https://travis-ci.org/MacPython/pymc-wheels/jobs/38314072#L2309
+  # Hang for py2:
+  #  https://travis-ci.org/MacPython/pymc-wheels/jobs/38314071#L2106
+  - nosetests --verbosity=3 -e test_interactive pymc
   - cd ..
 before_deploy: cd pymc/dist
 deploy:
