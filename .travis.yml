@@ -31,7 +31,7 @@ script:
   - mkdir tmp_for_test
   - cd tmp_for_test
   # Run the tests
-  - nosetests pymc
+  - nosetests --verbosity=3 pymc
   - cd ..
 before_deploy: cd pymc/dist
 deploy:
