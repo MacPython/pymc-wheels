@@ -1,0 +1,44 @@
+language:
+- objective-c
+env:
+  global:
+  - LATEST_TAG=1 # comment out to build version in submodule
+  - PYMC_BRANCH=2.3 # not used if LATEST_TAG is not set
+  matrix:
+  - VERSION=2.7.8 NUMPY_VERSION=1.6.2
+  - VERSION=3.3.5 NUMPY_VERSION=1.7.1
+  - VERSION=3.4.2 NUMPY_VERSION=1.7.1
+install:
+  # Install gfortran
+  - sudo installer -pkg archives/gfortran-4.2.3.pkg -target /
+  - source terryfy/travis_tools.sh
+  - get_python_environment macpython $VERSION venv
+  - pip install delocate numpy==$NUMPY_VERSION
+  - if [ -n "$LATEST_TAG" ]; then
+    checkout_closest_tag pymc $PYMC_BRANCH;
+    fi
+  - cd pymc
+  - sh buildosx
+  - python setupegg.py bdist_wheel
+  - delocate-listdeps dist/*.whl # lists library dependencies
+  - delocate-wheel dist/*.whl # copies library dependencies into wheel
+  - rename_wheels dist
+  - pip install dist/*.whl
+  - cd ..
+script:
+  # install dependencies for tests e.g - pip install nose
+  - pip install nose scipy
+  - mkdir tmp_for_test
+  - cd tmp_for_test
+  # Run the tests
+  - nosetests pymc
+  - cd ..
+before_deploy: cd pymc/dist
+deploy:
+  provider: cloudfiles
+  username: travis-worker
+  api_key:
+      secure: "W54qtVBUnRGkkDNOPEYzGgTtHTvmcZxiJAGi9auhXXuLYY2aZI6ltT/2bkzQraHJAXXH5uDuKqxonmLNgWpFmlDIvn+PFWNVchUN0lOW17grlN/g/HdhJXZHPz+17r2Iq0yTE2DpdkjfhlQACsmi87JFRs8eVntkL7tcj47j+gI="
+  region: ORD
+  container: wheels
+  skip_cleanup: true

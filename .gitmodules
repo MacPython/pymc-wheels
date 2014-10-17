@@ -1,0 +1,6 @@
+[submodule "pymc"]
+	path = pymc
+	url = https://github.com/pymc-devs/pymc.git
+[submodule "terryfy"]
+	path = terryfy
+	url = git://github.com/MacPython/terryfy.git
